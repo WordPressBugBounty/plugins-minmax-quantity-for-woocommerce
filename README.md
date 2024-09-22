@@ -1,0 +1,1 @@
+# plugins-minmax-quantity-for-woocommerce
