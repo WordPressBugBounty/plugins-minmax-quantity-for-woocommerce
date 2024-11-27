@@ -201,26 +201,25 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
     );
     protected static $instance;
     function __construct() {
-        add_action('BeRocket_MM_Quantity__construct', array($this, 'init_conditions'));
         $this->post_name = 'br_minmax_limitation';
         $this->post_settings = array(
-            'label' => __( 'Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'label' => 'Min/Max Limitation',
             'labels' => array(
-                'name'               => __( 'Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
-                'singular_name'      => __( 'Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
-                'menu_name'          => _x( 'Limitations', 'Admin menu name', 'minmax-quantity-for-woocommerce' ),
-                'add_new'            => __( 'Add Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
-                'add_new_item'       => __( 'Add New Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
-                'edit'               => __( 'Edit', 'minmax-quantity-for-woocommerce' ),
-                'edit_item'          => __( 'Edit Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
-                'new_item'           => __( 'New Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
-                'view'               => __( 'View Min/Max Limitations', 'minmax-quantity-for-woocommerce' ),
-                'view_item'          => __( 'View Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
-                'search_items'       => __( 'Search Min/Max Limitations', 'minmax-quantity-for-woocommerce' ),
-                'not_found'          => __( 'No Min/Max Limitations found', 'minmax-quantity-for-woocommerce' ),
-                'not_found_in_trash' => __( 'No Min/Max Limitations found in trash', 'minmax-quantity-for-woocommerce' ),
+                'name'               => 'Min/Max Limitation',
+                'singular_name'      => 'Min/Max Limitation',
+                'menu_name'          => 'Limitations',
+                'add_new'            => 'Add Min/Max Limitation',
+                'add_new_item'       => 'Add New Min/Max Limitation',
+                'edit'               => 'Edit',
+                'edit_item'          => 'Edit Min/Max Limitation',
+                'new_item'           => 'New Min/Max Limitation',
+                'view'               => 'View Min/Max Limitations',
+                'view_item'          => 'View Min/Max Limitation',
+                'search_items'       => 'Search Min/Max Limitations',
+                'not_found'          => 'No Min/Max Limitations found',
+                'not_found_in_trash' => 'No Min/Max Limitations found in trash',
             ),
-            'description'     => __( 'This is where you can add Min/Max Limitations.', 'minmax-quantity-for-woocommerce' ),
+            'description'     => 'This is where you can add Min/Max Limitations.',
             'public'          => true,
             'show_ui'         => true,
             'capability_type' => 'post',
@@ -246,14 +245,29 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
             'max_price_text'    => 'Those products: %products% price must be <strong>%value%</strong> or less',
             'limitations'       => array('1' => array()),
         );
-        $this->add_meta_box('conditions', __( 'Conditions', 'minmax-quantity-for-woocommerce' ));
-        $this->add_meta_box('minmax_settings', __( 'Min/Max Settings', 'minmax-quantity-for-woocommerce' ));
         parent::__construct();
 
         add_filter('brfr_berocket_minmax_custom_post_limitations', array($this, 'section_limitations'), 20, 4);
         add_filter('brfr_berocket_minmax_custom_post_text_explanation', array($this, 'section_text_explanation'), 20, 4);
     }
-    public function init_conditions() {
+    function init_translation() {
+        $this->post_settings['label'] = __( 'Min/Max Limitation', 'minmax-quantity-for-woocommerce' );
+        $this->post_settings['labels'] = array(
+            'name'               => __( 'Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'singular_name'      => __( 'Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'menu_name'          => _x( 'Limitations', 'Admin menu name', 'minmax-quantity-for-woocommerce' ),
+            'add_new'            => __( 'Add Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'add_new_item'       => __( 'Add New Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'edit'               => __( 'Edit', 'minmax-quantity-for-woocommerce' ),
+            'edit_item'          => __( 'Edit Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'new_item'           => __( 'New Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'view'               => __( 'View Min/Max Limitations', 'minmax-quantity-for-woocommerce' ),
+            'view_item'          => __( 'View Min/Max Limitation', 'minmax-quantity-for-woocommerce' ),
+            'search_items'       => __( 'Search Min/Max Limitations', 'minmax-quantity-for-woocommerce' ),
+            'not_found'          => __( 'No Min/Max Limitations found', 'minmax-quantity-for-woocommerce' ),
+            'not_found_in_trash' => __( 'No Min/Max Limitations found in trash', 'minmax-quantity-for-woocommerce' ),
+        );
+        $this->post_settings['description'] = __( 'This is where you can add Min/Max Limitations.', 'minmax-quantity-for-woocommerce' );
         $this->conditions = new BeRocket_conditions_minmax($this->post_name.'[condition]', $this->hook_name, array(
             'condition_product',
             'condition_product_sale',
@@ -265,6 +279,8 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
             'condition_shipping_zone',
             'condition_shipping_method'
         ));
+        $this->add_meta_box('conditions', __( 'Conditions', 'minmax-quantity-for-woocommerce' ));
+        $this->add_meta_box('minmax_settings', __( 'Min/Max Settings', 'minmax-quantity-for-woocommerce' ));
     }
     public function section_limitations($item, $field_options, $options, $name) {
         $html = '<td colspan="2">';
