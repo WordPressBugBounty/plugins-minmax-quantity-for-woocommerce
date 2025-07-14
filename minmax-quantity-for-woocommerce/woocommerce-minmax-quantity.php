@@ -3,18 +3,18 @@
  * Plugin Name: Min and Max Quantity for WooCommerce
  * Plugin URI: https://wordpress.org/plugins/minmax-quantity-for-woocommerce/
  * Description: Plugin for WooCommerce which add minimum and maximum quantities for products
- * Version: 1.3.8
+ * Version: 1.3.8.1
  * Author: BeRocket
  * Requires at least: 5.0
- * Tested up to: 6.7
+ * Tested up to: 6.8
  * Requires PHP: 7.0
  * Requires Plugins: woocommerce
  * Author URI: https://berocket.com?utm_source=free_plugin&utm_medium=plugins&utm_campaign=MM_Quantity
  * Text Domain: minmax-quantity-for-woocommerce
  * Domain Path: /languages/
- * WC tested up to: 9.5
+ * WC tested up to: 10.0
  */
-define( "BeRocket_MM_Quantity_version", '1.3.8' );
+define( "BeRocket_MM_Quantity_version", '1.3.8.1' );
 define( "BeRocket_MM_Quantity_file", __FILE__ );
 include_once('main.php');
 

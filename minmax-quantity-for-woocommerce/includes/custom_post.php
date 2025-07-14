@@ -96,10 +96,24 @@ class BeRocket_conditions_minmax extends BeRocket_conditions {
         $def_options = array('method_id' => '');
         $options = array_merge($def_options, $options);
         $html .= static::supcondition($name, $options);
-        $html .= '<select name="' . $name . '[method_id]">';
         $shipping_methods = WC()->shipping->get_shipping_methods();
+        $shipping_methods_check = array();
         foreach ( $shipping_methods as $shipping_id => $shipping ) {
-            $html .= "<option " . ($options['method_id'] == $shipping_id ? ' selected' : '') . " value='".$shipping_id."'>".$shipping->method_title."</option>";
+            if( $shipping_id == 'pickup_location' ) {
+                $pickup_locations = get_option( 'pickup_location_pickup_locations', [] );
+                if( is_array($pickup_locations) ) {
+                    foreach($pickup_locations as $pickup_id => $pickup_location) {
+                        $shipping_methods_check[$shipping_id . ':' . $pickup_id] = $shipping->method_title . ' : ' . $pickup_location['name'];
+                    }
+                }
+                $methods = get_class_methods($shipping);
+            } else {
+                $shipping_methods_check[$shipping_id] = $shipping->method_title;
+            }
+        }
+        $html .= '<select name="' . $name . '[method_id]">';
+        foreach ( $shipping_methods_check as $shipping_id => $shipping ) {
+            $html .= "<option " . ($options['method_id'] == $shipping_id ? ' selected' : '') . " value='".$shipping_id."'>".$shipping."</option>";
         }
         $html .= '</select>';
         return $html;
@@ -109,7 +123,8 @@ class BeRocket_conditions_minmax extends BeRocket_conditions {
         $condition = array_merge($def_options, $condition);
         $chosen_method = WC()->checkout->shipping_methods;
         $chosen_method = (isset($chosen_method[0]) ? $chosen_method[0] : '');
-        $show = strpos($chosen_method, $condition['method_id'].':') !== FALSE;
+        $show = ( strpos($chosen_method, $condition['method_id'].':') !== FALSE 
+             || ('local_pickup' == $condition['method_id'] && strpos($chosen_method, 'pickup_location:') !== FALSE ) );
         if( $condition['equal'] == 'not_equal' ) {
             $show = ! $show;
         }
