@@ -1130,7 +1130,7 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
         if( $display_error ) {
             foreach($br_minmax_notices as $error_type => $errors) {
                 foreach($errors as $error) {
-                    wc_add_notice( '<span class="berocket_minmax" style="display:none;"></span>'.apply_filters('berocket_minmax_wc_add_notice_text', $error), $error_type );
+                    wc_add_notice( '<span class="berocket_minmax" style="display:none;"></span>'.apply_filters('berocket_minmax_wc_add_notice_text', $error), $error_type, array('minmax' => '1') );
                 }
             }
         }

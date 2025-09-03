@@ -2,6 +2,7 @@
 class BeRocket_MM_Quantity_input_limitations {
     public $plugin_name = 'MM_Quantity';
     public $version_number = 40;
+    private $products_quantity_result = array();
     function __construct() {
         $BeRocket_MM_Quantity = BeRocket_MM_Quantity::getInstance();
         $options = $BeRocket_MM_Quantity->get_option();
@@ -22,6 +23,10 @@ class BeRocket_MM_Quantity_input_limitations {
             }
             add_filter('woocommerce_add_to_cart_quantity', array($this, 'add_to_cart_quantity'), 500, 2 );
         }
+        //limitations by fields
+        add_filter('woocommerce_store_api_product_quantity_minimum', array($this, 'woocommerce_store_api_product_quantity_minimum'), 500, 2);
+        add_filter('woocommerce_store_api_product_quantity_maximum', array($this, 'woocommerce_store_api_product_quantity_maximum'), 500, 2);
+        add_filter('woocommerce_store_api_product_quantity_multiple_of', array($this, 'woocommerce_store_api_product_quantity_multiple_of'), 500, 2);
     }
     function product_for_each_product($check_result) {
         if( isset($check_result['min_qty']) ) {
@@ -306,6 +311,36 @@ class BeRocket_MM_Quantity_input_limitations {
             </td>
         </tr>';
         return $html;
+    }
+    public function woocommerce_store_api_product_quantity_minimum($value, $product) {
+        $prod_id = $product->get_id();
+        if( ! isset($this->products_quantity_result[$prod_id]) ) {
+            $this->products_quantity_result[$prod_id] = $this->woocommerce_quantity_input_args(array('min_value' => 1, 'max_value' => -1, 'step' => 1), $product);
+        }
+        if( $value < $this->products_quantity_result[$prod_id]['min_value'] ) {
+            $value = $this->products_quantity_result[$prod_id]['min_value'];
+        }
+        return $value;
+    }
+    public function woocommerce_store_api_product_quantity_maximum($value, $product) {
+        $prod_id = $product->get_id();
+        if( ! isset($this->products_quantity_result[$prod_id]) ) {
+            $this->products_quantity_result[$prod_id] = $this->woocommerce_quantity_input_args(array('min_value' => 1, 'max_value' => -1, 'step' => 1), $product);
+        }
+        if( $value > $this->products_quantity_result[$prod_id]['max_value'] ) {
+            $value = $this->products_quantity_result[$prod_id]['max_value'];
+        }
+        return $value;
+    }
+    public function woocommerce_store_api_product_quantity_multiple_of($value, $product) {
+        $prod_id = $product->get_id();
+        if( ! isset($this->products_quantity_result[$prod_id]) ) {
+            $this->products_quantity_result[$prod_id] = $this->woocommerce_quantity_input_args(array('min_value' => 1, 'max_value' => -1, 'step' => 1), $product);
+        }
+        if( $value != $this->products_quantity_result[$prod_id]['step'] ) {
+            $value = $this->products_quantity_result[$prod_id]['step'];
+        }
+        return $value;
     }
 }
 new BeRocket_MM_Quantity_input_limitations;

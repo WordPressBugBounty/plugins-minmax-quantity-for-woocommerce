@@ -26,7 +26,7 @@ class BeRocket_conditions_minmax extends BeRocket_conditions {
             $options['coupons'] = array();
         }
         $coupons = get_posts(array(
-            'posts_per_page'   => -1,
+            'posts_per_page'   => 1000,
             'orderby'          => 'title',
             'order'            => 'asc',
             'post_type'        => 'shop_coupon',
