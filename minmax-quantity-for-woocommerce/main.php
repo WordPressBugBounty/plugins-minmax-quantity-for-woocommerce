@@ -889,16 +889,16 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
             wc_clear_notices();
             $additional_product_id = ! empty( $additional_product['variation_id'] ) ? absint( $additional_product['variation_id'] ) : absint( $additional_product['product_id'] );
             if( empty( $product_qty_in_cart[ $additional_product_id ] ) ) {
-                $product_qty_in_cart[ $additional_product_id ] = $additional_product['quantity'];
+                $product_qty_in_cart[ $additional_product_id ] = intval($additional_product['quantity']);
             } else {
-                $product_qty_in_cart[ $additional_product_id ] += $additional_product['quantity'];
+                $product_qty_in_cart[ $additional_product_id ] += intval($additional_product['quantity']);
             }
             $additional_product_exist = 0;
             foreach ( $get_cart as $cart_item_key => $values ) {
                 $_product = $values['data'];
-                if( $additional_product['product_id'] == $values['product_id'] ) {
+                if( intval($additional_product['product_id']) == intval($values['product_id']) ) {
                     if( $additional_product['data']->is_type( 'variation' ) || $_product->is_type( 'variation' ) ) {
-                        if( @ $values['variation_id'] == @ $additional_product['variation_id'] ) {
+                        if( intval($values['variation_id']) == intval($additional_product['variation_id']) ) {
                             $additional_product_exist = $cart_item_key;
                         }
                     } else {
@@ -909,11 +909,11 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
             if( $additional_product_exist === 0 ) {
                 $get_cart['additional_product'] = $additional_product;
             } else {
-                $get_cart[$additional_product_exist]['quantity'] += $additional_product['quantity'];
+                $get_cart[$additional_product_exist]['quantity'] += intval($additional_product['quantity']);
                 if( ! isset($get_cart[$additional_product_exist]['line_total']) ) {
                     $get_cart[$additional_product_exist]['line_total'] = 0;
                 }
-                $get_cart[$additional_product_exist]['line_total'] += $additional_product['line_total'];
+                $get_cart[$additional_product_exist]['line_total'] += floatval($additional_product['line_total']);
             }
         }
         
@@ -930,7 +930,7 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
                     $product_in_cart_line_price[$values['variation_id']] = 0;
                 }
                 $product_in_cart_line_price[$values['variation_id']] += $this->get_line_total_cart_item($values);
-                $product_qty_in_cart_var_fix[$_product_id] += $values['quantity'];
+                $product_qty_in_cart_var_fix[$_product_id] += intval($values['quantity']);
             } else {
                 $_product = $values['data'];
                 $_product_id = br_wc_get_product_id($_product);
