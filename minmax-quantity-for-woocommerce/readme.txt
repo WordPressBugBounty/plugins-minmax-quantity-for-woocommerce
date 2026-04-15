@@ -2,10 +2,10 @@
 Plugin Name: Min and Max Quantity for WooCommerce
 Contributors: berocket, dholovnia
 Donate link: https://berocket.com/woocommerce-min-max-quantity/?utm_source=wordpress_org&utm_medium=donate&utm_campaign=MM_Quantity
-Tags: limit quantity, limit cost, woocommerce limits, range to buy, min and max to purchase, product limits to buy, products min, products max, set min and max, woocommerce min and max, quantity limits for products, quantity limits for product variations, quantity limits for products in cart, cost limits for products in cart, minimum product quantity, maximum product quantity, product quantity, product quantity category, quantity order, minimum, maximum, quantity, minimum purchase, maximum purchase, max quantity, cart maximum, max purchase, cart max, order limit, products purchase limit, limit products purchase, min max products purchase limit, berocket, berocket min and max quantity for woocommerce
+Tags: woocommerce, quantity, minimum, maximum, purchase limit
 Requires at least: 5.0
-Tested up to: 6.9.3
-Stable tag: 1.3.8.5
+Tested up to: 6.9.4
+Stable tag: 1.3.8.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,6 +16,10 @@ Min and Max Quantity for WooCommerce - set limits for cost of products in orders
 
 Min and Max Quantity for WooCommerce plugin allow you to setup limits for cost of products in orders and in groups and limits for quantity of products, product variations, products in orders and products in group. You can add products and product variations to group. Infinite amount of groups.
 
+= 🚀 Spring Premium Days is LIVE! =
+**Save 30%** on Pro features across BeRocket plugins. 
+*Control how customers buy with flexible quantity and order limits. Prevent incorrect purchases and guide customers with clear limit messages before they reach checkout.*
+🌿 Improve your store today. [**Limited time offer!**](https://berocket.com/woocommerce-min-max-quantity/?utm_source=free_plugin&utm_medium=wporg&utm_campaign=spring_2026&utm_content=top_ad_cta&utm_term=MM_Quantity)
 
 = Features: =
 &#9989; Quantity limits for products
@@ -97,6 +101,10 @@ You can try this plugin's admin side [here](https://berocket.com/woocommerce-min
 ---
 
 == Changelog ==
+
+= 1.3.8.6 =
+* Enhancement - Compatibility version: Wordpress 6.9.4 and WooCommerce 10.6.2
+* Fix - PHP warning in admin area
 
 = 1.3.8.5 =
 * Enhancement - Compatibility with other BeRocket plugins
