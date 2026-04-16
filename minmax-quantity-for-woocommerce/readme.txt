@@ -5,7 +5,7 @@ Donate link: https://berocket.com/woocommerce-min-max-quantity/?utm_source=wordp
 Tags: woocommerce, quantity, minimum, maximum, purchase limit
 Requires at least: 5.0
 Tested up to: 6.9.4
-Stable tag: 1.3.8.6
+Stable tag: 1.3.8.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -101,6 +101,10 @@ You can try this plugin's admin side [here](https://berocket.com/woocommerce-min
 ---
 
 == Changelog ==
+
+= 1.3.8.7 =
+* Enhancement - Compatibility version: WooCommerce 10.7
+* Fix - Plugins notice mark on BeRocket element
 
 = 1.3.8.6 =
 * Enhancement - Compatibility version: Wordpress 6.9.4 and WooCommerce 10.6.2
