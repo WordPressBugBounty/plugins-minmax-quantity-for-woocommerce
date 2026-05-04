@@ -5,21 +5,15 @@ Donate link: https://berocket.com/woocommerce-min-max-quantity/?utm_source=wordp
 Tags: woocommerce, quantity, minimum, maximum, purchase limit
 Requires at least: 5.0
 Tested up to: 6.9.4
-Stable tag: 1.3.8.7
+Stable tag: 3.1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-
-Min and Max Quantity for WooCommerce - set limits for cost of products in orders and in groups and limits for quantity of products, product variations, products in orders and products in group.
+Min & Max Quantity for WooCommerce: set limits by cost, product, variation, order, and groups for better purchase control
 
 == Description ==
 
 Min and Max Quantity for WooCommerce plugin allow you to setup limits for cost of products in orders and in groups and limits for quantity of products, product variations, products in orders and products in group. You can add products and product variations to group. Infinite amount of groups.
-
-= 🚀 Spring Premium Days is LIVE! =
-**Save 30%** on Pro features across BeRocket plugins. 
-*Control how customers buy with flexible quantity and order limits. Prevent incorrect purchases and guide customers with clear limit messages before they reach checkout.*
-🌿 Improve your store today. [**Limited time offer!**](https://berocket.com/woocommerce-min-max-quantity/?utm_source=free_plugin&utm_medium=wporg&utm_campaign=spring_2026&utm_content=top_ad_cta&utm_term=MM_Quantity)
 
 = Features: =
 &#9989; Quantity limits for products
@@ -101,6 +95,11 @@ You can try this plugin's admin side [here](https://berocket.com/woocommerce-min
 ---
 
 == Changelog ==
+
+= 3.1.1.5 =
+* Enhancement - Compatibility version: Wordpress 6.9.4
+* Enhancement - Version same as premium plugin
+* Fix - PHP fatal error on plugin update when other BeRocket plugin installed
 
 = 1.3.8.7 =
 * Enhancement - Compatibility version: WooCommerce 10.7
