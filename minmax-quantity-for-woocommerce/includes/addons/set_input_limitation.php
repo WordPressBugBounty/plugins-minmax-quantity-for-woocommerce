@@ -327,7 +327,7 @@ class BeRocket_MM_Quantity_input_limitations {
         if( ! isset($this->products_quantity_result[$prod_id]) ) {
             $this->products_quantity_result[$prod_id] = $this->woocommerce_quantity_input_args(array('min_value' => 1, 'max_value' => -1, 'step' => 1), $product);
         }
-        if( $value > $this->products_quantity_result[$prod_id]['max_value'] ) {
+        if( $this->products_quantity_result[$prod_id]['max_value'] != -1 && $value > $this->products_quantity_result[$prod_id]['max_value'] ) {
             $value = $this->products_quantity_result[$prod_id]['max_value'];
         }
         return $value;
