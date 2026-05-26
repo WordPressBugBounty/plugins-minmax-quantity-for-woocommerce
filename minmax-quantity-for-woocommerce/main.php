@@ -32,6 +32,7 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
             'key'         => '',
             'name'        => '',
             'plugin_name' => 'MM_Quantity',
+            'plugin_sku'  => 'minmax',
             'full_name'   => 'WooCommerce Min and Max Quantities',
             'norm_name'   => 'Min/Max Quantities',
             'price'       => '',
@@ -90,6 +91,7 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
             'Prevent add to cart when limit is reached',
             'Exclude product from rules'
         );
+	    $this->active_libraries = ['tooltip'];
 
         if( method_exists($this, 'include_once_files') ) {
             $this->include_once_files();
@@ -269,7 +271,7 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
                             "name"          => "cart_min_price",
                             "label_be_for"  => __('Minimum: ', 'minmax-quantity-for-woocommerce')
                         ),
-                        array(
+                        'cart_max_price' => array(
                             "type"      => "number",
                             "name"      => "cart_max_price",
                             "label_be_for" => __( 'Maximum: ' , "minmax-quantity-for-woocommerce" ),
@@ -402,15 +404,13 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
         ) );
     }
 	public function section_text_replacement() {
-		$html = '<tr>
+		return '
             <th scope="row">' . __('Replacements', 'minmax-quantity-for-woocommerce') . '</th>
             <td>
 				<p><strong>%products%</strong> - ' . __('will be replaced with product names, that cause limitation error', 'minmax-quantity-for-woocommerce') . '</p>
 				<p><strong>%value%</strong> - ' . __('will be replaced with value that must be used for this limitation', 'minmax-quantity-for-woocommerce') . '</p>
 				<p><strong>%value_cart%</strong> - ' . __('will be replaced with value from cart', 'minmax-quantity-for-woocommerce') . '</p>
-            </td>
-        </tr>';
-        return $html;
+            </td>';
 	}
     /**
      * Function that use for WordPress init action

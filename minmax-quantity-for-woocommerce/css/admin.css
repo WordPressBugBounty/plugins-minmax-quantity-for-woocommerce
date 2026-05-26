@@ -8,3 +8,7 @@
     padding-top: 0;
     padding-bottom: 0;
 }
+.br_mm_remove_group + input {
+    margin-left: 10px;
+    margin-bottom: 5px;
+}

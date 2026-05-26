@@ -297,8 +297,7 @@ class BeRocket_MM_Quantity_input_limitations {
         return $data;
     }
     public function section_input_limitation ( $html, $item, $options ) {
-        $html .= '<tr>
-            <td></td>
+	    return '<td></td>
             <td>
                 '.__('It works with:', 'minmax-quantity-for-woocommerce').'
                 <ul style="list-style:disc;">
@@ -308,9 +307,7 @@ class BeRocket_MM_Quantity_input_limitations {
                     <li>'.__('Limitation in variations of variable product', 'minmax-quantity-for-woocommerce').'</li>
                     <li>'.__('Limitation with enabled option "Each Product"', 'minmax-quantity-for-woocommerce').'</li>
                 </ul>
-            </td>
-        </tr>';
-        return $html;
+            </td>';
     }
     public function woocommerce_store_api_product_quantity_minimum($value, $product) {
         $prod_id = $product->get_id();

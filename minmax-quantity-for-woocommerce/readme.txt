@@ -4,8 +4,8 @@ Contributors: berocket, dholovnia
 Donate link: https://berocket.com/woocommerce-min-max-quantity/?utm_source=wordpress_org&utm_medium=donate&utm_campaign=MM_Quantity
 Tags: woocommerce, quantity, minimum, maximum, purchase limit
 Requires at least: 5.0
-Tested up to: 6.9.4
-Stable tag: 3.1.1.6
+Tested up to: 7.0
+Stable tag: 3.1.1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -95,6 +95,11 @@ You can try this plugin's admin side [here](https://berocket.com/woocommerce-min
 ---
 
 == Changelog ==
+
+= 3.1.1.7 =
+* Enhancement - Compatibility version: Wordpress 7.0
+* Fix - Input limitation addon maximum limitation
+* Fix - Styles issues with Wordpress 7
 
 = 3.1.1.6 =
 * Fix - PHP error on include files for some specific settings

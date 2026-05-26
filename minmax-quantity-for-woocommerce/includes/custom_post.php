@@ -358,6 +358,7 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
                                  ' . (empty($limitation_input['step']) ? '' : 'step="' . $limitation_input['step'] . '"') . '></td>';
             $html .= '</tr>';
         }
+	    $html = apply_filters('berocket_minmax_limitation_inputs_after', $html);
         $html .= '<tr><td colspan="2" style="font-size: 1.5em; font-weight:bold;text-align:center;padding-top:1em;">' . __('OR', 'minmax-quantity-for-woocommerce') . '</td></tr>';
         $html .= '</table>';
         return $html;
