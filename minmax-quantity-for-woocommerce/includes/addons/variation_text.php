@@ -52,7 +52,7 @@ class BeRocket_MM_Quantity_variation_text {
                 }
             }
             $html .= '</ul>';
-            echo $html;
+            echo wp_kses_post($html);
         }
         echo '<script>jQuery(document).on("found_variation", "' . apply_filters('BeRocket_MM_input_form_class', 'form.cart') . '", function(event, variation) {';
             echo '

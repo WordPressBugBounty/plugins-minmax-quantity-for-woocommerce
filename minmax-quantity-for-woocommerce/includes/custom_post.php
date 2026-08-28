@@ -38,8 +38,8 @@ class BeRocket_conditions_minmax extends BeRocket_conditions {
             $html .= '<div style="max-height:150px;overflow:auto;border:1px solid #ccc;padding: 5px;">';
             foreach($coupons as $coupon) {
                 $html .= '<div><label>
-                <input type="checkbox" name="' . $name . '[coupons][]" value="' . $coupon->ID . '"' . ( (! empty($options['coupons']) && is_array($options['coupons']) && in_array($coupon->ID, $options['coupons']) ) ? ' checked' : '' ) . '>
-                ' . $coupon->post_title . '
+                <input type="checkbox" name="' . esc_attr($name) . '[coupons][]" value="' . esc_attr($coupon->ID) . '"' . ( (! empty($options['coupons']) && is_array($options['coupons']) && in_array($coupon->ID, $options['coupons']) ) ? ' checked' : '' ) . '>
+                ' . esc_html($coupon->post_title) . '
                 </label></div>';
             }
             $html .= '</div>';
@@ -72,10 +72,10 @@ class BeRocket_conditions_minmax extends BeRocket_conditions {
         $def_options = array('zone_id' => '');
         $options = array_merge($def_options, $options);
         $html .= static::supcondition($name, $options);
-        $html .= '<select name="' . $name . '[zone_id]">';
+        $html .= '<select name="' . esc_attr($name) . '[zone_id]">';
         $shipping_zone = WC_Shipping_Zones::get_zones();
         foreach ( $shipping_zone as $shipping ) {
-            $html .= "<option " . ($options['zone_id'] == $shipping['id'] ? ' selected' : '') . " value='".$shipping['id']."'>".$shipping['zone_name']."</option>";
+            $html .= '<option ' . ($options['zone_id'] == $shipping['id'] ? ' selected' : '') . ' value="' . esc_attr($shipping['id']) . '">' . esc_html($shipping['zone_name']) . '</option>';
         }
         $html .= '</select>';
         return $html;
@@ -111,9 +111,9 @@ class BeRocket_conditions_minmax extends BeRocket_conditions {
                 $shipping_methods_check[$shipping_id] = $shipping->method_title;
             }
         }
-        $html .= '<select name="' . $name . '[method_id]">';
+        $html .= '<select name="' . esc_attr($name) . '[method_id]">';
         foreach ( $shipping_methods_check as $shipping_id => $shipping ) {
-            $html .= "<option " . ($options['method_id'] == $shipping_id ? ' selected' : '') . " value='".$shipping_id."'>".$shipping."</option>";
+            $html .= '<option ' . ($options['method_id'] == $shipping_id ? ' selected' : '') . ' value="' . esc_attr($shipping_id) . '">' . esc_html($shipping) . '</option>';
         }
         $html .= '</select>';
         return $html;
@@ -235,9 +235,26 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
                 'not_found_in_trash' => 'No Min/Max Limitations found in trash',
             ),
             'description'     => 'This is where you can add Min/Max Limitations.',
-            'public'          => true,
+            'public'          => false,
             'show_ui'         => true,
-            'capability_type' => 'post',
+            'capability_type' => 'br_minmax_limitation',
+            'capabilities'    => array(
+                'edit_post'              => 'manage_berocket',
+                'read_post'              => 'manage_berocket',
+                'delete_post'            => 'manage_berocket',
+                'edit_posts'             => 'manage_berocket',
+                'edit_others_posts'      => 'manage_berocket',
+                'delete_posts'           => 'manage_berocket',
+                'publish_posts'          => 'manage_berocket',
+                'read_private_posts'     => 'manage_berocket',
+                'delete_private_posts'   => 'manage_berocket',
+                'delete_published_posts' => 'manage_berocket',
+                'delete_others_posts'    => 'manage_berocket',
+                'edit_private_posts'     => 'manage_berocket',
+                'edit_published_posts'   => 'manage_berocket',
+                'create_posts'           => 'manage_berocket',
+            ),
+            'map_meta_cap'    => false,
             'publicly_queryable'  => false,
             'exclude_from_search' => true,
             'show_in_menu'        => 'berocket_account',
@@ -313,11 +330,11 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
         $html .= '</div>';
         $html .= '<a href="#add_" class="button br_minmax_add_limitation">' . __('ADD LIMITATION', 'minmax-quantity-for-woocommerce') . '</a>';
         $html .= '</div>';
-        $html .= '<script>var br_minmax_limitation_last = ' . $i . ';
+        $html .= '<script>var br_minmax_limitation_last = ' . absint($i) . ';
         jQuery(document).on("click", ".br_minmax_add_limitation", function(event) {
             event.preventDefault();
             var $html = jQuery(".br_minmax_limitations .br_minmax_limitations_sample").html();
-            $html = $html.replace(/%name%/g, "' . $name . '");
+            $html = $html.replace(/%name%/g, ' . wp_json_encode($name) . ');
             $html = $html.replace(/%i%/g, br_minmax_limitation_last);
             br_minmax_limitation_last++;
             jQuery(".br_minmax_limitations .br_minmax_limitations_list").append(jQuery($html));
@@ -351,11 +368,15 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
         );
         $limitation_inputs = apply_filters('berocket_minmax_limitation_inputs', $limitation_inputs);
         foreach($limitation_inputs as $input_name => $limitation_input) {
-            $html .= '<tr' . (empty($limitation_input['class']) ? '' : ' class="' . $limitation_input['class'] .'"') . '>';
-            $html .= '<th>' . $limitation_input['text'] . '</th>';
-            $html .= '<td><input type="' . $limitation_input['type'] . '" name="' . $name . '[limitations][' . $i . '][' . $input_name . ']"
-                                 value="' . (empty($options[$input_name]) ? '' : $options[$input_name]) . '"
-                                 ' . (empty($limitation_input['step']) ? '' : 'step="' . $limitation_input['step'] . '"') . '></td>';
+            $input_value = isset($options[$input_name]) && is_scalar($options[$input_name])
+                ? $options[$input_name]
+                : '';
+            $input_name_attr = $name . '[limitations][' . $i . '][' . $input_name . ']';
+            $html .= '<tr' . (empty($limitation_input['class']) ? '' : ' class="' . esc_attr($limitation_input['class']) .'"') . '>';
+            $html .= '<th>' . esc_html($limitation_input['text']) . '</th>';
+            $html .= '<td><input type="' . esc_attr($limitation_input['type']) . '" name="' . esc_attr($input_name_attr) . '"
+                                 value="' . esc_attr($input_value) . '"
+                                 ' . (empty($limitation_input['step']) ? '' : 'step="' . esc_attr($limitation_input['step']) . '"') . '></td>';
             $html .= '</tr>';
         }
 	    $html = apply_filters('berocket_minmax_limitation_inputs_after', $html);
@@ -443,7 +464,66 @@ class BeRocket_minmax_custom_post extends BeRocket_custom_post_class {
         );
         echo '</div>';
     }
+    public function wc_save_check($post_id, $post) {
+        if( ! $post || $this->post_name !== $post->post_type ) {
+            return false;
+        }
+        if( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+            return false;
+        }
+        if( ! current_user_can('edit_post', $post_id) ) {
+            return false;
+        }
+        $nonce_name = $this->post_name . '_nonce';
+        $nonce = isset($_POST[$nonce_name]) && is_string($_POST[$nonce_name])
+            ? sanitize_text_field(wp_unslash($_POST[$nonce_name]))
+            : '';
+        return wp_verify_nonce($nonce, $this->post_name . '_check');
+    }
     public function wc_save_product_without_check( $post_id, $post ) {
+        if( isset($_POST[$this->post_name]) && is_array($_POST[$this->post_name]) ) {
+            $post_data = wp_unslash($_POST[$this->post_name]);
+            if( isset($post_data['limitations']) && is_array($post_data['limitations']) ) {
+                $numeric_fields = array('min_qty', 'max_qty', 'min_price', 'max_price', 'multiplicity');
+                foreach($post_data['limitations'] as $index => $limitation) {
+                    if( ! is_array($limitation) ) {
+                        $post_data['limitations'][$index] = array();
+                        continue;
+                    }
+                    foreach($numeric_fields as $numeric_field) {
+                        if( array_key_exists($numeric_field, $limitation) ) {
+                            $post_data['limitations'][$index][$numeric_field] = is_scalar($limitation[$numeric_field])
+                                ? wc_format_decimal($limitation[$numeric_field])
+                                : '';
+                        }
+                    }
+                }
+            }
+            foreach(array('min_attribute', 'max_attribute') as $numeric_field) {
+                if( array_key_exists($numeric_field, $post_data) ) {
+                    $post_data[$numeric_field] = is_scalar($post_data[$numeric_field])
+                        ? wc_format_decimal($post_data[$numeric_field])
+                        : '';
+                }
+            }
+            if( isset($post_data['attribute_type']) ) {
+                $post_data['attribute_type'] = is_string($post_data['attribute_type'])
+                    && in_array($post_data['attribute_type'], array('', 'attribute', 'postmeta'), true)
+                    ? $post_data['attribute_type']
+                    : '';
+            }
+            if( isset($post_data['attribute']) ) {
+                $post_data['attribute'] = is_string($post_data['attribute'])
+                    ? sanitize_key($post_data['attribute'])
+                    : '';
+            }
+            if( isset($post_data['postmeta']) ) {
+                $post_data['postmeta'] = is_string($post_data['postmeta'])
+                    ? sanitize_key($post_data['postmeta'])
+                    : '';
+            }
+            $_POST[$this->post_name] = $post_data;
+        }
         parent::wc_save_product_without_check( $post_id, $post );
         if( method_exists($this->conditions, 'save') ) {
             $settings = get_post_meta( $post_id, $this->post_name, true );

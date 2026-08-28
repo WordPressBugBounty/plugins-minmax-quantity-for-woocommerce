@@ -105,8 +105,18 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
         if ( $this->init_validation() ) {
             $options = parent::get_option();
             if( ! empty($options['addons']) && is_array($options['addons']) ) {
+                $allowed_addons = array(
+                    'set_input_limitation',
+                    'variation_text',
+                );
                 foreach($options['addons'] as $addon) {
-                    include_once(plugin_dir_path( __FILE__ ) . "includes/addons/{$addon}.php");
+                    if( ! is_string($addon) ) {
+                        continue;
+                    }
+                    $addon = sanitize_key($addon);
+                    if( in_array($addon, $allowed_addons, true) ) {
+                        include_once __DIR__ . "/includes/addons/{$addon}.php";
+                    }
                 }
             }
             add_action ( 'init', array( $this, 'init' ) );
@@ -114,7 +124,6 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
             add_action ( 'admin_init', array( $this, 'register_mm_quantity_options' ) );
             add_action ( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
             add_action ( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-            add_action ( 'wp_ajax_mm_quantity_ajax', array( $this,'roles_ajax_choose' ) );    
             
             add_action( 'woocommerce_product_options_inventory_product_data', array( $this, 'wc_product_field' ) );
             add_action( 'save_post', array( $this, 'wc_save_product' ) );
@@ -502,20 +511,28 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
         return $filter_array;
     }
     public function check_product_error($error, $settings_limitation, $qty, $price) {
-        if( ! empty($settings_limitation['min_qty']) && $qty < apply_filters('berocket_check_product_error_min_qty', $settings_limitation['min_qty']) ) {
-            $error['min_qty'][] = apply_filters('berocket_check_product_error_min_qty', $settings_limitation['min_qty']);
+        $min_qty = apply_filters('berocket_check_product_error_min_qty', $settings_limitation['min_qty'] ?? '');
+        $min_qty = is_scalar($min_qty) && is_numeric($min_qty) ? (float) $min_qty : 0;
+        $max_qty = apply_filters('berocket_check_product_error_max_qty', $settings_limitation['max_qty'] ?? '');
+        $max_qty = is_scalar($max_qty) && is_numeric($max_qty) ? (float) $max_qty : 0;
+        $min_price = apply_filters('berocket_check_product_error_min_price', $settings_limitation['min_price'] ?? '');
+        $min_price = is_scalar($min_price) && is_numeric($min_price) ? (float) $min_price : 0;
+        $max_price = apply_filters('berocket_check_product_error_max_price', $settings_limitation['max_price'] ?? '');
+        $max_price = is_scalar($max_price) && is_numeric($max_price) ? (float) $max_price : 0;
+        if( $min_qty > 0 && $qty < $min_qty ) {
+            $error['min_qty'][] = $min_qty;
             $error['cart_values']['min_qty'] = $qty;
         }
-        if( ! empty($settings_limitation['max_qty']) && $qty > apply_filters('berocket_check_product_error_max_qty', $settings_limitation['max_qty']) ) {
-            $error['max_qty'][] = apply_filters('berocket_check_product_error_max_qty', $settings_limitation['max_qty']);
+        if( $max_qty > 0 && $qty > $max_qty ) {
+            $error['max_qty'][] = $max_qty;
             $error['cart_values']['max_qty'] = $qty;
         }
-        if( ! empty($settings_limitation['min_price']) && $price < apply_filters('berocket_check_product_error_min_price', $settings_limitation['min_price']) ) {
-            $error['min_price'][] = wc_price(apply_filters('berocket_check_product_error_min_price', $settings_limitation['min_price']));
+        if( $min_price > 0 && $price < $min_price ) {
+            $error['min_price'][] = wc_price($min_price);
             $error['cart_values']['min_price'] = wc_price($price);
         }
-        if( ! empty($settings_limitation['max_price']) && $price > apply_filters('berocket_check_product_error_max_price', $settings_limitation['max_price']) ) {
-            $error['max_price'][] = wc_price(apply_filters('berocket_check_product_error_max_price', $settings_limitation['max_price']));
+        if( $max_price > 0 && $price > $max_price ) {
+            $error['max_price'][] = wc_price($max_price);
             $error['cart_values']['max_price'] = wc_price($price);
         }
         return $error;
@@ -642,33 +659,40 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return;
         }
-        if( empty($_REQUEST['product_edit']) || ! wp_verify_nonce($_REQUEST['product_edit'], 'berocket_minmax') ) {
+        $product_id = absint($product_id);
+        if( ! $product_id || 'product' !== get_post_type($product_id) || ! current_user_can('edit_post', $product_id) ) {
             return;
         }
-        if ( isset( $_POST['min_quantity'] ) ) {
-            $min_qty = floatval($_POST['min_quantity']);
+        $nonce = isset($_POST['product_edit']) && is_string($_POST['product_edit'])
+            ? sanitize_text_field(wp_unslash($_POST['product_edit']))
+            : '';
+        if( ! wp_verify_nonce($nonce, 'berocket_minmax') ) {
+            return;
+        }
+        if ( isset( $_POST['min_quantity'] ) && is_scalar($_POST['min_quantity']) ) {
+            $min_qty = (float) wc_format_decimal(wp_unslash($_POST['min_quantity']));
             if( empty($min_qty) ) {
                 $min_qty = '';
             }
             update_post_meta( $product_id, 'min_quantity', $min_qty );
         }
-        if ( isset( $_POST['max_quantity'] ) ) {
-            $max_qty = floatval($_POST['max_quantity']);
+        if ( isset( $_POST['max_quantity'] ) && is_scalar($_POST['max_quantity']) ) {
+            $max_qty = (float) wc_format_decimal(wp_unslash($_POST['max_quantity']));
             if( empty($max_qty) ) {
                 $max_qty = '';
             }
             update_post_meta( $product_id, 'max_quantity', $max_qty );
         }
 		if ( isset( $_POST['quantity_text'] ) ) {
-			$quantity_text = $_POST['quantity_text'];
+			$quantity_text = wp_unslash($_POST['quantity_text']);
 			if( ! is_array($quantity_text) ) {
 				$quantity_text = array();
 			}
 			$quantity_text_sanitized = array();
-			if( isset($quantity_text['min']) ) {
+			if( isset($quantity_text['min']) && is_scalar($quantity_text['min']) ) {
 				$quantity_text_sanitized['min'] = sanitize_text_field($quantity_text['min']);
 			}
-			if( isset($quantity_text['max']) ) {
+			if( isset($quantity_text['max']) && is_scalar($quantity_text['max']) ) {
 				$quantity_text_sanitized['max'] = sanitize_text_field($quantity_text['max']);
 			}
             update_post_meta( $product_id, 'quantity_text', $quantity_text_sanitized );
@@ -723,33 +747,40 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
     }
     
     public function save_variation_settings_fields( $post_id ) {
-        if( empty($_REQUEST['variation_edit']) || ! wp_verify_nonce($_REQUEST['variation_edit'], 'berocket_minmax') ) {
+        $post_id = absint($post_id);
+        if( ! $post_id || 'product_variation' !== get_post_type($post_id) || ! current_user_can('edit_post', $post_id) ) {
             return;
         }
-        if( isset( $_POST['min_quantity_var'][ $post_id ] ) ) {
-            $min_qty = floatval($_POST['min_quantity_var'][ $post_id ]);
+        $nonce = isset($_POST['variation_edit']) && is_string($_POST['variation_edit'])
+            ? sanitize_text_field(wp_unslash($_POST['variation_edit']))
+            : '';
+        if( ! wp_verify_nonce($nonce, 'berocket_minmax') ) {
+            return;
+        }
+        if( isset( $_POST['min_quantity_var'][ $post_id ] ) && is_scalar($_POST['min_quantity_var'][ $post_id ]) ) {
+            $min_qty = (float) wc_format_decimal(wp_unslash($_POST['min_quantity_var'][ $post_id ]));
             if( empty($min_qty) ) {
                 $min_qty = '';
             }
             update_post_meta( $post_id, 'min_quantity_var', $min_qty );
         }
-        if( isset( $_POST['max_quantity_var'][ $post_id ] ) ) {
-            $max_qty = floatval($_POST['max_quantity_var'][ $post_id ]);
+        if( isset( $_POST['max_quantity_var'][ $post_id ] ) && is_scalar($_POST['max_quantity_var'][ $post_id ]) ) {
+            $max_qty = (float) wc_format_decimal(wp_unslash($_POST['max_quantity_var'][ $post_id ]));
             if( empty($max_qty) ) {
                 $max_qty = '';
             }
             update_post_meta( $post_id, 'max_quantity_var', $max_qty );
         }
 		if ( isset($_POST['quantity_var_text']) && isset( $_POST['quantity_var_text'][ $post_id ] ) ) {
-			$quantity_text = $_POST['quantity_var_text'][ $post_id ];
+			$quantity_text = wp_unslash($_POST['quantity_var_text'][ $post_id ]);
 			if( ! is_array($quantity_text) ) {
 				$quantity_text = array();
 			}
 			$quantity_text_sanitized = array();
-			if( isset($quantity_text['min']) ) {
+			if( isset($quantity_text['min']) && is_scalar($quantity_text['min']) ) {
 				$quantity_text_sanitized['min'] = sanitize_text_field($quantity_text['min']);
 			}
-			if( isset($quantity_text['max']) ) {
+			if( isset($quantity_text['max']) && is_scalar($quantity_text['max']) ) {
 				$quantity_text_sanitized['max'] = sanitize_text_field($quantity_text['max']);
 			}
             update_post_meta( $post_id, 'quantity_var_text', $quantity_text_sanitized );
@@ -959,9 +990,11 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
             }
 
             //GET PRODUCT LIMITATIONS
+            $product_min_quantity = get_post_meta( $values['product_id'], 'min_quantity', true );
+            $product_max_quantity = get_post_meta( $values['product_id'], 'max_quantity', true );
             $product_limitation = array(
-                'min_qty' => get_post_meta( $values['product_id'], 'min_quantity', true ),
-                'max_qty' => get_post_meta( $values['product_id'], 'max_quantity', true ),
+                'min_qty' => is_scalar($product_min_quantity) && is_numeric($product_min_quantity) ? (float) $product_min_quantity : '',
+                'max_qty' => is_scalar($product_max_quantity) && is_numeric($product_max_quantity) ? (float) $product_max_quantity : '',
             );
 
             $product_limitation = apply_filters('berocket_minmax_product_limitation', $product_limitation, $values['product_id'], false);
@@ -975,9 +1008,11 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
                 $price_variation = (empty($product_in_cart_line_price[ $values['variation_id'] ]) ? 0 : $product_in_cart_line_price[ $values['variation_id'] ]);
 
                 //GET VARIATION LIMITATIONS
+                $variation_min_quantity = get_post_meta( $values['variation_id'], 'min_quantity_var', true );
+                $variation_max_quantity = get_post_meta( $values['variation_id'], 'max_quantity_var', true );
                 $variation_limitation = array(
-                    'min_qty' => get_post_meta( $values['variation_id'], 'min_quantity_var', true ),
-                    'max_qty' => get_post_meta( $values['variation_id'], 'max_quantity_var', true ),
+                    'min_qty' => is_scalar($variation_min_quantity) && is_numeric($variation_min_quantity) ? (float) $variation_min_quantity : '',
+                    'max_qty' => is_scalar($variation_max_quantity) && is_numeric($variation_max_quantity) ? (float) $variation_max_quantity : '',
                 );
                 $variation_limitation = apply_filters('berocket_minmax_product_limitation', $variation_limitation, $values['variation_id'], true);
 
@@ -1286,6 +1321,22 @@ class BeRocket_MM_Quantity extends BeRocket_Framework {
         }
         // standart
         $settings = parent::save_settings_callback($settings);
+        if( isset($settings['addons']) && is_array($settings['addons']) ) {
+            $settings['addons'] = array_values(array_intersect(
+                array_map('sanitize_key', array_filter($settings['addons'], 'is_string')),
+                array('set_input_limitation', 'variation_text')
+            ));
+        } else {
+            $settings['addons'] = array();
+        }
+        if( isset($settings['global_multiplicity']) ) {
+            $settings['global_multiplicity'] = is_scalar($settings['global_multiplicity'])
+                ? absint($settings['global_multiplicity'])
+                : '';
+            if( $settings['global_multiplicity'] < 1 ) {
+                $settings['global_multiplicity'] = '';
+            }
+        }
         return $settings;
     }
     public function menu_order_custom_post($compatibility) {

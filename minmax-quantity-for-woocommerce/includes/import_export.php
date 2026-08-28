@@ -40,10 +40,12 @@ if( ! class_exists('BeRocket_minmax_import_export') ) {
         }
         function process_import( $object, $data ) {
             if ( ! empty( $data['min_quantity'] ) ) {
-                $object->update_meta_data( 'min_quantity', $data['min_quantity'] );
+                $min_quantity = is_scalar($data['min_quantity']) ? wc_format_decimal($data['min_quantity']) : '';
+                $object->update_meta_data( 'min_quantity', is_numeric($min_quantity) ? (float) $min_quantity : '' );
             }
             if ( ! empty( $data['max_quantity'] ) ) {
-                $object->update_meta_data( 'max_quantity', $data['max_quantity'] );
+                $max_quantity = is_scalar($data['max_quantity']) ? wc_format_decimal($data['max_quantity']) : '';
+                $object->update_meta_data( 'max_quantity', is_numeric($max_quantity) ? (float) $max_quantity : '' );
             }
             return $object;
         }

@@ -143,23 +143,35 @@ class BeRocket_MM_Quantity_input_limitations {
         return $error;
     }
     public function check_product_error($error, $settings_limitation, $qty, $price, $single = true, $cart = false) {
-        if( ! empty($settings_limitation['min_qty']) && $single ) {
+        $min_qty = isset($settings_limitation['min_qty']) && is_scalar($settings_limitation['min_qty']) && is_numeric($settings_limitation['min_qty'])
+            ? (float) $settings_limitation['min_qty']
+            : 0;
+        $max_qty = isset($settings_limitation['max_qty']) && is_scalar($settings_limitation['max_qty']) && is_numeric($settings_limitation['max_qty'])
+            ? (float) $settings_limitation['max_qty']
+            : 0;
+        $min_price = isset($settings_limitation['min_price']) && is_scalar($settings_limitation['min_price']) && is_numeric($settings_limitation['min_price'])
+            ? (float) $settings_limitation['min_price']
+            : 0;
+        $max_price = isset($settings_limitation['max_price']) && is_scalar($settings_limitation['max_price']) && is_numeric($settings_limitation['max_price'])
+            ? (float) $settings_limitation['max_price']
+            : 0;
+        if( $min_qty > 0 && $single ) {
             if( $cart ) {
-                $new_min_qty = $settings_limitation['min_qty'];
+                $new_min_qty = $min_qty;
             } else {
-                $new_min_qty = ( ($settings_limitation['min_qty'] - $qty) < 1 ? 1 : ($settings_limitation['min_qty'] - $qty) );
+                $new_min_qty = ( ($min_qty - $qty) < 1 ? 1 : ($min_qty - $qty) );
             }
             $error['min_qty'] = ( isset($error['min_qty'])
                 ? ( $error['min_qty'] < $new_min_qty ? $new_min_qty : $error['min_qty'] )
                 : $new_min_qty
             );
         }
-        if( ! empty($settings_limitation['max_qty']) ) {
+        if( $max_qty > 0 ) {
             if( $cart ) {
-                $new_max_qty = $settings_limitation['max_qty'];
+                $new_max_qty = $max_qty;
             } else {
-                $new_max_qty = ( ($settings_limitation['max_qty'] - $qty) < 1 ? 1 : ($settings_limitation['max_qty'] - $qty) );
-                if( ($settings_limitation['max_qty'] - $qty) < 1 ) {
+                $new_max_qty = ( ($max_qty - $qty) < 1 ? 1 : ($max_qty - $qty) );
+                if( ($max_qty - $qty) < 1 ) {
                     $error['max_qty_reached'] = true;
                 }
             }
@@ -168,22 +180,22 @@ class BeRocket_MM_Quantity_input_limitations {
                 : $new_max_qty
             );
         }
-        if( ! empty($settings_limitation['min_price']) && $single ) {
+        if( $min_price > 0 && $single ) {
             if( $cart ) {
-                $new_min_price = $settings_limitation['min_price'];
+                $new_min_price = $min_price;
             } else {
-                $new_min_price = ( ($settings_limitation['min_price'] - $price) < 0 ? 0 : ($settings_limitation['min_price'] - $price) );
+                $new_min_price = ( ($min_price - $price) < 0 ? 0 : ($min_price - $price) );
             }
             $error['min_price'] = ( isset($error['min_price'])
                 ? ( $error['min_price'] < $new_min_price ? $new_min_price : $error['min_price'] )
                 : $new_min_price
             );
         }
-        if( ! empty($settings_limitation['max_price']) ) {
+        if( $max_price > 0 ) {
             if( $cart ) {
-                $new_max_price = $settings_limitation['max_price'];
+                $new_max_price = $max_price;
             } else {
-                $new_max_price = ( ($settings_limitation['max_price'] - $price) < 0 ? 0 : ($settings_limitation['max_price'] - $price) );
+                $new_max_price = ( ($max_price - $price) < 0 ? 0 : ($max_price - $price) );
             }
             $error['max_price'] = ( isset($error['max_price'])
                 ? ( $error['max_price'] < $new_max_price ? $new_max_price : $error['max_price'] )
@@ -220,14 +232,14 @@ class BeRocket_MM_Quantity_input_limitations {
                 display: none;
             }
             </style>';
-        echo '<div class="berocket_prevent_minmax_input_add_to_cart_example" style="display: none;">'.$this->max_qty_reached_html('berocket_prevent_minmax_input_add_to_cart_variation').'</div>';
+        echo '<div class="berocket_prevent_minmax_input_add_to_cart_example" style="display: none;">' . wp_kses_post($this->max_qty_reached_html('berocket_prevent_minmax_input_add_to_cart_variation')) . '</div>';
     }
 
     public function woocommerce_before_add_to_cart_form() {
         global $product;
         $args = $this->get_input_data_for_product(array('min_qty' => 1, 'max_qty' => -1, 'step' => 1), $product);
         if( ! empty($args['max_qty_reached']) ) {
-            echo $this->max_qty_reached_html();
+            echo wp_kses_post($this->max_qty_reached_html());
         }
     }
 
